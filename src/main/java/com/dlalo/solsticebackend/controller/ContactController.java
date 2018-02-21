@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -28,15 +29,28 @@ public class ContactController {
 	@Autowired
 	ContactService service;
 	
+	@RequestMapping(method = RequestMethod.GET, produces= { "application/json" })
+	ResponseEntity<List<Contact>> getAllContacts(
+			@RequestParam(value="email", required = false) String email, 
+			@RequestParam(value="phoneNumber", required = false) String phoneNumber,
+			@RequestParam(value="state", required = false) String state,
+			@RequestParam(value="city", required = false) String city,
+			UriComponentsBuilder ucBuilder) {
+		
+		List<Contact> contacts = service.getAllContacts(email, phoneNumber, state, city);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(ucBuilder.path("/api/contacts").build().toUri());
+		return new ResponseEntity<List<Contact>>(contacts, headers, HttpStatus.OK);
+	}
+	
 	@RequestMapping(path = "/{id}" , method = RequestMethod.GET, produces= { "application/json" })
-	public ResponseEntity<?> getCampsiteAvailabilityDateRange(
-			@PathVariable(value="id") Long id, UriComponentsBuilder ucBuilder) {
+	public ResponseEntity<?> getContact(@PathVariable(value="id") Long id, UriComponentsBuilder ucBuilder) {
 		
 		HttpHeaders headers = new HttpHeaders();
 		if (!service.existsContact(id)) {
 			headers.setLocation(ucBuilder.path("/api/contacts/{id}").buildAndExpand(id).toUri());
         	CustomMessageType message =  new CustomMessageType("Contact with ID => " + id + " does not exist");
-        	return new ResponseEntity<CustomMessageType>(message, headers, HttpStatus.NO_CONTENT);
+        	return new ResponseEntity<CustomMessageType>(message, headers, HttpStatus.NOT_FOUND);
 		} else {
 			Contact contact = service.getContact(id);
 			headers.setLocation(ucBuilder.path("/api/contacts/{id}").buildAndExpand(contact.getId()).toUri());
@@ -44,23 +58,12 @@ public class ContactController {
 		}
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, produces= { "application/json" })
-	ResponseEntity<List<Contact>>getAllCampsitesAvailability(UriComponentsBuilder ucBuilder) {
-		
-		List<Contact> contacts = service.getAllContacts();
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(ucBuilder.path("/api/contacts").build().toUri());
-		return new ResponseEntity<List<Contact>>(contacts, headers, HttpStatus.OK);
-	}
-	
-
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> addContact(
-    		@RequestBody Contact contact, UriComponentsBuilder ucBuilder) {
+    public ResponseEntity<?> addContact(@RequestBody Contact contact, UriComponentsBuilder ucBuilder) {
         
         HttpHeaders headers = new HttpHeaders();
         try {
-        	service.createContact(contact);
+        	contact = service.createContact(contact);
         	logger.debug("Created contact with ID => " + contact.getId());
         	headers.setLocation(ucBuilder.path("/api/contacts/{id}").buildAndExpand(contact.getId()).toUri());
             return new ResponseEntity<Contact>(contact, headers, HttpStatus.CREATED);
@@ -68,7 +71,38 @@ public class ContactController {
         	String errStr = "Unable to create contact, cause => " + e.getMessage();
         	logger.error(errStr);
         	CustomMessageType error =  new CustomMessageType(errStr);
-        	return new ResponseEntity<CustomMessageType>(error, headers, HttpStatus.NO_CONTENT);
+        	return new ResponseEntity<CustomMessageType>(error, headers, HttpStatus.NOT_FOUND);
         }
     }
+	
+	@RequestMapping(path = "/{id}" , method = RequestMethod.PUT, produces= { "application/json" })
+	public ResponseEntity<?> updateContact(@PathVariable(value="id") Long id, @RequestBody Contact contact, UriComponentsBuilder ucBuilder) {
+		
+		HttpHeaders headers = new HttpHeaders();
+		if (!service.existsContact(id)) {
+			headers.setLocation(ucBuilder.path("/api/contacts/{id}").buildAndExpand(id).toUri());
+        	CustomMessageType message =  new CustomMessageType("Contact with ID => " + id + " does not exist");
+        	return new ResponseEntity<CustomMessageType>(message, headers, HttpStatus.NOT_FOUND);
+		} else {
+			contact = service.updateContact(contact, id);
+			headers.setLocation(ucBuilder.path("/api/contacts/{id}").buildAndExpand(contact.getId()).toUri());
+			return new ResponseEntity<Contact>(contact, headers, HttpStatus.OK);
+		}
+	}
+	
+	@RequestMapping(path = "/{id}" , method = RequestMethod.DELETE, produces= { "application/json" })
+	public ResponseEntity<?> deleteContact(@PathVariable(value="id") Long id, UriComponentsBuilder ucBuilder) {
+		
+		HttpHeaders headers = new HttpHeaders();
+		if (!service.existsContact(id)) {
+			headers.setLocation(ucBuilder.path("/api/contacts/{id}").buildAndExpand(id).toUri());
+        	CustomMessageType message =  new CustomMessageType("Contact with ID => " + id + " does not exist");
+        	return new ResponseEntity<CustomMessageType>(message, headers, HttpStatus.NOT_FOUND);
+		} else {
+			service.deleteContact(id);
+			CustomMessageType message =  new CustomMessageType("Contact with ID => " + id + " DELETED");
+			headers.setLocation(ucBuilder.path("/api/contacts/{id}").buildAndExpand(id).toUri());
+			return new ResponseEntity<CustomMessageType>(message, headers, HttpStatus.OK);
+		}
+	}
 }

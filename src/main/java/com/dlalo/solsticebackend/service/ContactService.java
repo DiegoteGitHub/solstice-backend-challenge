@@ -10,8 +10,12 @@ public interface ContactService {
 
 	Contact getContact(Long id);
 
-	List<Contact> getAllContacts();
+	List<Contact> getAllContacts(String email, String phoneNumber, String state, String city);
 
-	void createContact(Contact contact);
+	Contact createContact(Contact contact);
+
+	Contact updateContact(Contact contact, Long id);
+
+	void deleteContact(Long id);
 
 }

@@ -4,14 +4,9 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Address  implements Serializable {
@@ -34,12 +29,6 @@ public class Address  implements Serializable {
 	
 	@Column
 	private String stateCd;
-	
-	// N addresses => 1 contact
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "contact_id")
-	@JsonIgnore
-	private Contact contact;
 
 	public Long getId() {
 		return id;
@@ -79,13 +68,5 @@ public class Address  implements Serializable {
 
 	public void setStateCd(String stateCd) {
 		this.stateCd = stateCd;
-	}
-
-	public Contact getContact() {
-		return contact;
-	}
-
-	public void setContact(Contact contact) {
-		this.contact = contact;
 	}
 }

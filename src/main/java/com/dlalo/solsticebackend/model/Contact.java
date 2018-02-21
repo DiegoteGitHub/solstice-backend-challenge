@@ -1,17 +1,14 @@
 package com.dlalo.solsticebackend.model;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Contact implements Serializable {
@@ -38,14 +35,14 @@ public class Contact implements Serializable {
 	private Long birthDate; // DATE EPOCH
 	
 	@Column
-	private String personalPhoneNumber;
+	private String personalphone;
 	
 	@Column
-	private String workPhoneNumber;
+	private String workphone;
 	
-	// 1 contact => N addresses
-	@OneToMany(mappedBy="contact", fetch=FetchType.LAZY, cascade=CascadeType.ALL)
-	private List<Address> addresses;
+	@OneToOne
+	@JoinColumn(name = "address_id")
+	private Address address;
 
 	public Long getId() {
 		return id;
@@ -95,27 +92,27 @@ public class Contact implements Serializable {
 		this.birthDate = birthDate;
 	}
 
-	public String getPersonalPhoneNumber() {
-		return personalPhoneNumber;
+	public Address getAddress() {
+		return address;
 	}
 
-	public void setPersonalPhoneNumber(String personalPhoneNumber) {
-		this.personalPhoneNumber = personalPhoneNumber;
+	public void setAddress(Address address) {
+		this.address = address;
 	}
 
-	public String getWorkPhoneNumber() {
-		return workPhoneNumber;
+	public String getPersonalphone() {
+		return personalphone;
 	}
 
-	public void setWorkPhoneNumber(String workPhoneNumber) {
-		this.workPhoneNumber = workPhoneNumber;
+	public void setPersonalphone(String personalphone) {
+		this.personalphone = personalphone;
 	}
 
-	public List<Address> getAddresses() {
-		return addresses;
+	public String getWorkphone() {
+		return workphone;
 	}
 
-	public void setAddresses(List<Address> addresses) {
-		this.addresses = addresses;
+	public void setWorkphone(String workphone) {
+		this.workphone = workphone;
 	}
 }
