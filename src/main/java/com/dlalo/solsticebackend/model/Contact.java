@@ -43,6 +43,20 @@ public class Contact implements Serializable {
 	@OneToOne
 	@JoinColumn(name = "address_id")
 	private Address address;
+	
+	public Contact() {
+	}
+	
+	public Contact(String name, String company, String profileImage, String email, Long birthDate, String personalphone, String workphone, Address address) {
+		this.name = name;
+		this.company = company;
+		this.profileImage = profileImage;
+		this.email = email;
+		this.birthDate = birthDate;
+		this.personalphone = personalphone;
+		this.workphone = workphone;
+		this.address = address;
+	}	
 
 	public Long getId() {
 		return id;

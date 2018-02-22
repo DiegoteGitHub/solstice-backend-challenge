@@ -29,6 +29,16 @@ public class Address  implements Serializable {
 	
 	@Column
 	private String stateCd;
+	
+	public Address() {
+	}
+	
+	public Address(String city, String streetName, Integer streetNumber, String stateCd) {
+		this.city = city;
+		this.streetName = streetName;
+		this.streetNumber = streetNumber;
+		this.stateCd = stateCd;
+	}
 
 	public Long getId() {
 		return id;

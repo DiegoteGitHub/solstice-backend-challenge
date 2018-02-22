@@ -1,5 +1,8 @@
 package com.dlalo.solsticebackend.service;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.dlalo.solsticebackend.model.Address;
 import com.dlalo.solsticebackend.model.Contact;
 import com.dlalo.solsticebackend.repository.AddressRepository;
 import com.dlalo.solsticebackend.repository.ContactRepository;
@@ -74,14 +78,15 @@ public class ContactServiceImpl implements ContactService {
 	}
 
 	@Override
-	public Contact createContact(Contact contact) {
-		if (contact.getAddress() != null)
-			addressRepository.save(contact.getAddress());
+	public Contact createContact(Contact contact) throws RuntimeException {
+		validateContactFields(contact);
+		addressRepository.save(contact.getAddress());
 		return contactRepository.save(contact);
 	}
 
 	@Override
-	public Contact updateContact(Contact contact, Long id) {
+	public Contact updateContact(Contact contact, Long id) throws RuntimeException {
+		validateContactFields(contact);
 		Contact oldContact = contactRepository.findById(id).get();
 		oldContact.setAddress(contact.getAddress());
 		oldContact.setName(contact.getName());
@@ -91,6 +96,7 @@ public class ContactServiceImpl implements ContactService {
 		oldContact.setBirthDate(contact.getBirthDate());
 		oldContact.setPersonalphone(contact.getPersonalphone());
 		oldContact.setWorkphone(contact.getWorkphone());
+		addressRepository.save(oldContact.getAddress());
 		contactRepository.save(oldContact);
 		return contactRepository.findById(id).get();
 	}
@@ -112,5 +118,42 @@ public class ContactServiceImpl implements ContactService {
 		if (!StringUtils.isEmpty(phoneNumber))
 			qryStr += " AND (c.personalphone = :phoneNumber OR c.workphone =  :phoneNumber)";
 		return qryStr;
+	}
+	
+	private void validateContactFields(Contact contact) throws RuntimeException {
+		if (StringUtils.isEmpty(contact.getName()))
+			throw new RuntimeException("Name is mandatory");
+		if (StringUtils.isEmpty(contact.getCompany()))
+			throw new RuntimeException("Company is mandatory");
+		if (StringUtils.isEmpty(contact.getProfileImage()))
+			throw new RuntimeException("Profile image URL is mandatory");
+		if (StringUtils.isEmpty(contact.getEmail()))
+			throw new RuntimeException("Email is mandatory");
+		if (StringUtils.isEmpty(contact.getBirthDate()))
+			throw new RuntimeException("Birthdate is mandatory");
+		else if (LocalDate.now().equals(Instant.ofEpochMilli(contact.getBirthDate()).atZone(ZoneId.systemDefault()).toLocalDate()) 
+				|| Instant.ofEpochMilli(contact.getBirthDate()).atZone(ZoneId.systemDefault()).toLocalDate().isAfter(LocalDate.now()))
+			throw new RuntimeException("Birthdate cannot be today or after today");
+		if (StringUtils.isEmpty(contact.getPersonalphone()))
+			throw new RuntimeException("Personal phone is mandatory");
+		if (StringUtils.isEmpty(contact.getWorkphone()))
+			throw new RuntimeException("Work phone is mandatory");
+		validateAddress(contact.getAddress());
+	}
+
+	private void validateAddress(Address address) throws RuntimeException {
+		if (address == null)
+			throw new RuntimeException("Address information is mandatory");
+		else {
+			if (StringUtils.isEmpty(address.getCity()))
+				throw new RuntimeException("Address city is mandatory");
+			if (StringUtils.isEmpty(address.getStateCd()))
+				throw new RuntimeException("Address state is mandatory");
+			if (StringUtils.isEmpty(address.getStreetName()))
+				throw new RuntimeException("Address street name is mandatory");
+			if (StringUtils.isEmpty(address.getStreetNumber()))
+				throw new RuntimeException("Address street number is mandatory");
+			
+		}
 	}
 }

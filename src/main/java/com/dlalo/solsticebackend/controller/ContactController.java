@@ -71,7 +71,7 @@ public class ContactController {
         	String errStr = "Unable to create contact, cause => " + e.getMessage();
         	logger.error(errStr);
         	CustomMessageType error =  new CustomMessageType(errStr);
-        	return new ResponseEntity<CustomMessageType>(error, headers, HttpStatus.NOT_FOUND);
+        	return new ResponseEntity<CustomMessageType>(error, headers, HttpStatus.NOT_ACCEPTABLE);
         }
     }
 	
@@ -84,9 +84,16 @@ public class ContactController {
         	CustomMessageType message =  new CustomMessageType("Contact with ID => " + id + " does not exist");
         	return new ResponseEntity<CustomMessageType>(message, headers, HttpStatus.NOT_FOUND);
 		} else {
-			contact = service.updateContact(contact, id);
-			headers.setLocation(ucBuilder.path("/api/contacts/{id}").buildAndExpand(contact.getId()).toUri());
-			return new ResponseEntity<Contact>(contact, headers, HttpStatus.OK);
+			try {
+				contact = service.updateContact(contact, id);
+				headers.setLocation(ucBuilder.path("/api/contacts/{id}").buildAndExpand(contact.getId()).toUri());
+				return new ResponseEntity<Contact>(contact, headers, HttpStatus.OK);
+			} catch (RuntimeException r) {
+				String errStr = "Unable to update contact, cause => " + r.getMessage();
+	        	logger.error(errStr);
+	        	CustomMessageType error =  new CustomMessageType(errStr);
+	        	return new ResponseEntity<CustomMessageType>(error, headers, HttpStatus.NOT_ACCEPTABLE);
+			}
 		}
 	}
 	
