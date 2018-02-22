@@ -29,6 +29,8 @@ DELETE http://localhost:8080/api/contacts/{contact_id} => Deletes contact_id if 
 
 
 Valid contact example
+
+
 {
   "name":"Homer Simpson",
   "company":"Springfield Nuclear Power Plant",
