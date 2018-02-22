@@ -18,7 +18,11 @@ running).
 Application endpoints
 
 GET http://localhost:8080/api/contacts => Retrieves all contacts.
+
 GET http://localhost:8080/api/contacts/{contact_id} => Retrieves contact with id "contact_id" if exists.
+
 POST http://localhost:8080/api/contacts => Creates a new contact (The contact must be sent in the body as JSON object).
+
 PUT http://localhost:8080/api/contacts/{contact_id} => Updates contact_id if exists (The contact must be sent in the body as JSON object).
+
 DELETE http://localhost:8080/api/contacts/{contact_id} => Deletes contact_id if exists.
