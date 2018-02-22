@@ -26,3 +26,21 @@ POST http://localhost:8080/api/contacts => Creates a new contact (The contact mu
 PUT http://localhost:8080/api/contacts/{contact_id} => Updates contact_id if exists (The contact must be sent in the body as JSON object).
 
 DELETE http://localhost:8080/api/contacts/{contact_id} => Deletes contact_id if exists.
+
+
+Valid contact example
+{
+  "name":"Homer Simpson",
+  "company":"Springfield Nuclear Power Plant",
+  "profileImage":"http://homer.image.com",
+  "email":"hsimpson@hotmail.com",
+  "birthDate":"1519235114000",
+  "personalphone":"1234",
+  "workphone":"5678",
+  "address": { 
+  	"city": "Springfield",
+  	"streetName":"Evergreen terrace",
+  	"streetNumber": "1234",
+  	"stateCd":"CA"
+  }
+}
